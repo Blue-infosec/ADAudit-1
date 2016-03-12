@@ -16,7 +16,7 @@ To install this module, drop the entire ADAudit folder into one of your module d
 The default per-user module path is: "$Env:HomeDrive$Env:HOMEPATH\Documents\WindowsPowerShell\Modules"
 The default computer-level module path is: "$Env:windir\System32\WindowsPowerShell\v1.0\Modules"
 
-Once you've placed PowerSploit into your module path, run the following one-liner:
+Once you've placed ADAudit into your module path, run the following one-liner:
 `$Env:PSModulePath.Split(';') |
  % { if ( Test-Path (Join-Path $_ ADAudit) )
  {Get-ChildItem $_ -Recurse | Unblock-File} }`
