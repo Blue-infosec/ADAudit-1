@@ -12,7 +12,8 @@
                    Mandatory = $true)]
         [Parameter(ParameterSetName = 'OtherForest',
                     Mandatory = $false)]
-        [pscredential]
+        [Management.Automation.PSCredential]
+        [Management.Automation.CredentialAttribute()]
         $Credential,
         
         # Forest name.
