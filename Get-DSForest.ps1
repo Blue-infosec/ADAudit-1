@@ -8,10 +8,10 @@
         $ComputerName,
         
         # Credentials to use for getting forest information.
-        [Parameter(ParameterSetName = 'Remote',
-                   Mandatory = $true)]
         [Parameter(ParameterSetName = 'OtherForest',
                     Mandatory = $false)]
+        [Parameter(ParameterSetName = 'Remote',
+                   Mandatory = $true)]
         [Management.Automation.PSCredential]
         [Management.Automation.CredentialAttribute()]
         $Credential,
@@ -47,7 +47,15 @@ public static extern int NetGetJoinInformation(string server,out IntPtr domain,o
             }
             
             'Remote' {
-                
+                $cArgs = @(
+                    'DirectoryServer',
+                    $ComputerName,
+                    $Credential.UserName,
+                    $Credential.GetNetworkCredential().Password
+                )
+                $typeName = 'DirectoryServices.ActiveDirectory.DirectoryContext'
+                $context = New-Object $typeName  $cArgs
+                $ForestObject = [DirectoryServices.ActiveDirectory.Forest]::GetForest($context)
             }
             
             'OtherForest' {
