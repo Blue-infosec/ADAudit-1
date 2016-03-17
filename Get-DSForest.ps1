@@ -59,7 +59,24 @@ public static extern int NetGetJoinInformation(string server,out IntPtr domain,o
             }
             
             'OtherForest' {
-                
+                if ($Credential){
+                    # Arguments to get forest with alternate credentials
+                    $cArgs = @(
+                        'Forest',
+                        $ForestName,
+                        $Credential.UserName,
+                        $Credential.GetNetworkCredential().Password
+                    )
+                } else {
+                    # Arguments to only get forest with no alternate credentials
+                    $cArgs = @(
+                        'Forest',
+                        $ForestName
+                    )
+                }
+                $typeName = 'DirectoryServices.ActiveDirectory.DirectoryContext'
+                $context = New-Object $typeName  $cArgs
+                $ForestObject = [DirectoryServices.ActiveDirectory.Forest]::GetForest($context)
             }
             Default {}
         }
