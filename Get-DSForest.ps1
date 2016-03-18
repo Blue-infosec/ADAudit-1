@@ -59,7 +59,7 @@ public static extern int NetGetJoinInformation(string server,out IntPtr domain,o
             }
             
             'OtherForest' {
-                if ($Credential.UserName -eq $null){
+                if ($Credential.UserName -ne $null){
                     # Arguments to get forest with alternate credentials
                     $cArgs = @(
                         'Forest',
