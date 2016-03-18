@@ -14,7 +14,7 @@
                    Mandatory = $true)]
         [Management.Automation.PSCredential]
         [Management.Automation.CredentialAttribute()]
-        $Credential,
+        $Credential = [Management.Automation.PSCredential]::Empty,
         
         # Forest name.
         [Parameter(ParameterSetName = 'OtherForest',
@@ -59,7 +59,7 @@ public static extern int NetGetJoinInformation(string server,out IntPtr domain,o
             }
             
             'OtherForest' {
-                if ($Credential){
+                if ($Credential.UserName -eq $null){
                     # Arguments to get forest with alternate credentials
                     $cArgs = @(
                         'Forest',
