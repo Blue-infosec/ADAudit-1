@@ -24,7 +24,8 @@
 .OUTPUTS
     System.DirectoryServices.ActiveDirectory.Forest
 .NOTES
-    General notes
+    This function is heavily dependent on DNS. The host running the function is highly 
+    recomended to be using the same DNS server as the domain whe are querying.  
 #>
 function Get-DSForest {
     [CmdletBinding(DefaultParameterSetName = 'Current')]
