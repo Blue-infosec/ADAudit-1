@@ -41,7 +41,7 @@ Describe "Get-DSForest" {
     
     # Test by connecting to remote domain controller to get the forest it is a member off.
     if ($ComputerName.length -gt 0 -and $Credential.Username -ne $null) {
-        It 'Get remote forest'{
+        It 'Connect to DC and get forest it is a member of.'{
              $ForestObject = Get-DSForest -ComputerName $ComputerName -Credential $Credential
              {$ForestObject -is [System.DirectoryServices.ActiveDirectory.Forest]} | Should Be $true
         }   
