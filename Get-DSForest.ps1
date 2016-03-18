@@ -1,4 +1,32 @@
-﻿function Get-DSForest {
+﻿<#
+.SYNOPSIS
+    Get Active Directory Forest information.
+.DESCRIPTION
+    Gets Active Directory forest information for the forest the current host is a member of,
+    a specified forest given it FQDN and supports the use of alternate credentials.
+.PARAMETER ComputerName
+    Fully Qualified Name of a remote domain controller to connect to.
+.PARAMETER Credential
+    Alternate credentials for retrieving forest information.
+.PARAMETER Forest
+    Fully Qualified Name of a forest to get information on when running from a host joined 
+    to the domain.
+.EXAMPLE
+    C:\PS> Get-DSForest
+    Gets the forest for the domain the host is corrently joined to.
+.EXAMPLE
+    C:\PS> Get-DSForest -ComputerName dc01.acmelabs.com -Credential (Get-Credential user1)
+    Connect to a remote domain controller and get the forest for domain it manages using the 
+    provided credentials.
+.EXAMPLE
+    C:\PS> Get-DSForest -ForestName frabrikan.com 
+    Gets the forest frabikan.com that the current domain has a trust relationship with.
+.OUTPUTS
+    System.DirectoryServices.ActiveDirectory.Forest
+.NOTES
+    General notes
+#>
+function Get-DSForest {
     [CmdletBinding(DefaultParameterSetName = 'Current')]
     param(
         # Domain controller to connect to when not in a domain.
