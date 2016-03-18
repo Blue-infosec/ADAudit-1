@@ -46,6 +46,19 @@ Describe "Get-DSForest" {
              {$ForestObject -is [System.DirectoryServices.ActiveDirectory.Forest]} | Should Be $true
         }   
     }
+    
+    # Test for getting an alternate forest we have a trust relationship with.
+    if ($ForestName.length -gt 0 -and $Credential.Username -ne $null) {
+        It 'Get other forest with alternate credentials.'{
+             $ForestObject = Get-DSForest -ForestName $ForestName -Credential $Credential
+             {$ForestObject -is [System.DirectoryServices.ActiveDirectory.Forest]} | Should Be $true
+        } 
+    } elseif ($ForestName.length -gt 0 -and $Credential.Username -eq $null) {
+        It 'Get other forest.'{
+             $ForestObject = Get-DSForest -ForestName $ForestName
+             {$ForestObject -is [System.DirectoryServices.ActiveDirectory.Forest]} | Should Be $true
+        } 
+    }
 }
 
 
