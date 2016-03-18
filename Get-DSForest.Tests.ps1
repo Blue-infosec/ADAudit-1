@@ -31,7 +31,8 @@ Describe "Get-DSForest" {
     if ($joinstatus -eq 3)
     {
         It "Get current machine forest" {
-            (Get-DSForest).GetType().FullName | Should Be 'System.DirectoryServices.ActiveDirectory.Forest'
+            $ForestObject = Get-DSForest
+            {$ForestObject -is [System.DirectoryServices.ActiveDirectory.Forest]} | Should Be $true
         }
     }else {
         It 'Fails to get forest because host is not domain joined' {
