@@ -21,7 +21,7 @@ public static extern int NetGetJoinInformation(string server,out IntPtr domain,o
 "@
                 
 
-Describe "Get-DSForest" {
+Describe 'Get-DSForest' {
     $type = Add-Type -MemberDefinition $sig -Name Win32Utils -Namespace NetGetJoinInformation -PassThru
     $ptr = [IntPtr]::Zero
     $joinstatus = 0
@@ -30,9 +30,9 @@ Describe "Get-DSForest" {
     # Test for getting the forrest for which the machine is a member of.
     if ($joinstatus -eq 3)
     {
-        It "Get current machine forest" {
+        It 'Get current machine forest' {
             $ForestObject = Get-DSForest
-            {$ForestObject -is [System.DirectoryServices.ActiveDirectory.Forest]} | Should Be $true
+            ($ForestObject -is [System.DirectoryServices.ActiveDirectory.Forest]) | Should Be $true
         }
     }else {
         It 'Fails to get forest because host is not domain joined' {
@@ -44,7 +44,7 @@ Describe "Get-DSForest" {
     if ($ComputerName.length -gt 0 -and $Credential.Username -ne $null) {
         It 'Connect to DC and get forest it is a member of.'{
              $ForestObject = Get-DSForest -ComputerName $ComputerName -Credential $Credential
-             {$ForestObject -is [System.DirectoryServices.ActiveDirectory.Forest]} | Should Be $true
+             ($ForestObject -is [System.DirectoryServices.ActiveDirectory.Forest]) | Should Be $true
         }   
     }
     
@@ -52,14 +52,15 @@ Describe "Get-DSForest" {
     if ($ForestName.length -gt 0 -and $Credential.Username -ne $null) {
         It 'Get other forest with alternate credentials.'{
              $ForestObject = Get-DSForest -ForestName $ForestName -Credential $Credential
-             {$ForestObject -is [System.DirectoryServices.ActiveDirectory.Forest]} | Should Be $true
+             ($ForestObject -is [System.DirectoryServices.ActiveDirectory.Forest]) | Should Be $true
         } 
     } elseif ($ForestName.length -gt 0 -and $Credential.Username -eq $null) {
         It 'Get other forest.'{
              $ForestObject = Get-DSForest -ForestName $ForestName
-             {$ForestObject -is [System.DirectoryServices.ActiveDirectory.Forest]} | Should Be $true
+             ($ForestObject -is [System.DirectoryServices.ActiveDirectory.Forest]) | Should Be $true
         } 
     }
 }
+
 
 
