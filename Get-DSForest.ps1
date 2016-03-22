@@ -70,6 +70,8 @@ public static extern int NetGetJoinInformation(string server,out IntPtr domain,o
 
                 if ($joinstatus -eq 3){
                     $ForestObject = [System.DirectoryServices.ActiveDirectory.Forest]::GetCurrentForest()
+                    
+                    # Get sid for root domain.
                     if ($ForestObject -ne $null) {
                         $RootDN = "DC=$(($ForestObject.Name).replace('.',',DC='))"
                         $DEObj = Get-DSDirectoryEntry -DistinguishedName $RootDN
@@ -91,6 +93,8 @@ public static extern int NetGetJoinInformation(string server,out IntPtr domain,o
                 $typeName = 'DirectoryServices.ActiveDirectory.DirectoryContext'
                 $context = New-Object $typeName  $cArgs
                 $ForestObject = [DirectoryServices.ActiveDirectory.Forest]::GetForest($context)
+                
+                # Get sid for root domain.
                 if ($ForestObject -ne $null) {
                         $RootDN = "DC=$(($ForestObject.Name).replace('.',',DC='))"
                         $DEObj = Get-DSDirectoryEntry -DistinguishedName $RootDN -ComputerName $ComputerName -Credential $Credential
@@ -118,6 +122,8 @@ public static extern int NetGetJoinInformation(string server,out IntPtr domain,o
                 $typeName = 'DirectoryServices.ActiveDirectory.DirectoryContext'
                 $context = New-Object $typeName  $cArgs
                 $ForestObject = [DirectoryServices.ActiveDirectory.Forest]::GetForest($context)
+                
+                # Get sid for root domain.
                 if ($ForestObject -ne $null) {
                         $RootDN = "DC=$(($ForestObject.Name).replace('.',',DC='))"
                         if ($Credential.UserName -ne $null){
