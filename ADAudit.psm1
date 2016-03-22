@@ -1,3 +1,4 @@
 # Importing module files
-. .\Get-DSForest.ps1
-. .\Get-DSDiretoryEntry.ps1
+. $PSScriptRoot\Get-DSForest.ps1
+. $PSScriptRoot\Get-DSDirectoryEntry.ps1
+
