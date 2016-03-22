@@ -17,7 +17,9 @@
         $Credential = [Management.Automation.PSCredential]::Empty,
         
         # Distinguished Name of AD object.
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromPipeline = $true)]
         [string]
         $DistinguishedName
     )
