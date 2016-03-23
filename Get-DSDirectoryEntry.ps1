@@ -20,8 +20,6 @@
     Get Users group object by known SID
 .OUTPUTS
     System.DirectoryService.DirectoryEntry
-.NOTES
-    General notes
 #>
 function Get-DSDirectoryEntry {
 [CmdletBinding(DefaultParameterSetName = 'Current')]
