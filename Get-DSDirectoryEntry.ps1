@@ -1,4 +1,29 @@
-﻿function Get-DSDirectoryEntry {
+﻿<#
+.SYNOPSIS
+    Get a DirectoryEntry object for a specified distinguished name.
+.DESCRIPTION
+    Get a DirectoryEntry object for a specified distinguished name.
+.PARAMETER ComputerName
+    Fully Qualified Name of a remote domain controller to connect to.
+.PARAMETER Credential
+    Alternate credentials for retrieving forest information.
+.PARAMETER DistinguishedName
+    Distinguished Name of AD object we want to get.
+.EXAMPLE
+    C:\PS> Get-DSDirectoryEntry -DistinguishedName "CN=Domain Users,CN=Users,DC=acmelabs,DC=com"
+    Get Domain Users group object.
+.EXAMPLE
+    C:\PS> Get-DSDirectoryEntry -DistinguishedName "<GUID=244dc73c2962a349a90fb7cd8bc88c80>"
+    Get Domain Users group object by GUID.
+.EXAMPLE
+    C:\PS> Get-DSDirectoryEntry -DistinguishedName "<SID=S-1-5-32-545>"
+    Get Users group object by known SID
+.OUTPUTS
+    System.DirectoryService.DirectoryEntry
+.NOTES
+    General notes
+#>
+function Get-DSDirectoryEntry {
 [CmdletBinding(DefaultParameterSetName = 'Current')]
     param(
         # Domain controller.
