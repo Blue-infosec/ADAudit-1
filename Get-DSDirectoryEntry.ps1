@@ -40,11 +40,20 @@ function Get-DSDirectoryEntry {
         $Credential = [Management.Automation.PSCredential]::Empty,
         
         # Distinguished Name of AD object.
-        [Parameter(Mandatory = $true,
+        [Parameter(Mandatory = $false,
             ValueFromPipelineByPropertyName = $true,
             ValueFromPipeline = $true)]
         [string]
-        $DistinguishedName
+        $DistinguishedName,
+
+        # Path type (LDAP, Global Catalog, GUID or SID)
+        [Parameter(Mandatory = $false,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromPipeline = $true)]
+        [ValidateSet("LDAP", "GC")]
+        [string]
+        $PathType = 'LDAP'
+
     )
 
     begin {
@@ -56,20 +65,42 @@ public static extern int NetGetJoinInformation(string server,out IntPtr domain,o
         $ptr = [IntPtr]::Zero
         $joinstatus = 0
         $type::NetGetJoinInformation($null, [ref] $ptr, [ref]$joinstatus) |Out-Null
+
+        # Manage id DN includes path type.
+        if ($DistinguishedName.StartsWith('LDAP',$true,(Get-Culture)))
+        {
+            $PathType = 'LDAP'
+            $DistinguishedName = $DistinguishedName.Split('://')[1]
+        }
+
+        if ($DistinguishedName.StartsWith('GC',$true,(Get-Culture)))
+        {
+            $PathType = 'GC'
+            $DistinguishedName = $DistinguishedName.Split('://')[1]
+        }
     }
 
     process {
         switch ( $PSCmdlet.ParameterSetName ) {
             'Current' {
                 if ($joinstatus -eq 3) {
-                    [adsi]"LDAP://$($DistinguishedName)"
+                    if ($DistinguishedName) {
+                        [adsi]"$($PathType.ToUpper())://$($DistinguishedName)"
+                    } else {
+                        [adsi]''
+                    }
+                    
                 } else {
                     throw 'Host is currently not joined to a domain.'
                 }
             }
 
             'Remote' {
-                $fullPath = "LDAP://$($ComputerName)/$($DistinguishedName)"
+                if ($DistinguishedName){
+                    $fullPath = "$($PathType.ToUpper())://$($ComputerName)/$($DistinguishedName)"
+                } else {
+                    $fullPath = "$($PathType.ToUpper())://$($ComputerName)"
+                }
                 New-Object -TypeName System.DirectoryServices.DirectoryEntry -ArgumentList @($fullPath,
                     $Credential.UserName,
                     $Credential.GetNetworkCredential().Password) 
@@ -77,7 +108,7 @@ public static extern int NetGetJoinInformation(string server,out IntPtr domain,o
             }
             
             'Alternate' {
-                $fullPath = "LDAP://$($DistinguishedName)"
+                $fullPath = "$($PathType.ToUpper())://$($DistinguishedName)"
                 New-Object -TypeName System.DirectoryServices.DirectoryEntry -ArgumentList @($fullPath,
                     $Credential.UserName,
                     $Credential.GetNetworkCredential().Password) 
