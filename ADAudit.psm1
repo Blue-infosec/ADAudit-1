@@ -5,6 +5,9 @@
 . $PSScriptRoot\Get-DSComputer.ps1
 . $PSScriptRoot\Get-DSDomain.ps1
 . $PSScriptRoot\Get-DSGpo.ps1
+. $PSScriptRoot\Get-DSUser.ps1
+. $PSScriptRoot\Get-DSReplicationAttribute.ps1
+. $PSScriptRoot\Get-DSGroup.ps1
 # Private Functions
 
 <#

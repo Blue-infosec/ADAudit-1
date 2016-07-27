@@ -50,7 +50,7 @@ function Get-DSDirectoryEntry {
         [Parameter(Mandatory = $false,
             ValueFromPipelineByPropertyName = $true,
             ValueFromPipeline = $true)]
-        [ValidateSet("LDAP", "GC")]
+        [ValidateSet('LDAP', 'GC')]
         [string]
         $PathType = 'LDAP'
 

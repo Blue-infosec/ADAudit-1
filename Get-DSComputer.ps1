@@ -1,3 +1,18 @@
+<#
+.SYNOPSIS
+     Get computer objects in a given directory service.
+.DESCRIPTION
+     Get computer objects in a given directory service.
+.EXAMPLE
+    C:\PS> <example usage>
+    Explanation of what the example does
+.INPUTS
+    Inputs (if any)
+.OUTPUTS
+    Output (if any)
+.NOTES
+    General notes
+#>
 function Get-DSComputer {
     [CmdletBinding(DefaultParameterSetName='Current')]
     param(
@@ -17,8 +32,9 @@ function Get-DSComputer {
         $Credential = [Management.Automation.PSCredential]::Empty,
         
         [Parameter(Mandatory=$false,
-        HelpMessage="Maximum number of Objects to pull from AD, limit is 1,000 .")]
-        [int]$Limit = 1000,
+                HelpMessage='Maximum number of Objects to pull from AD, limit is 1,000 .')]
+        [int]
+        $Limit = 1000,
         
         [Parameter(Mandatory=$false)]
         [string]
@@ -29,134 +45,134 @@ function Get-DSComputer {
         $PageSize = 100,
         
         [Parameter(Mandatory=$false,
-                   HelpMessage="scope of a search as either a base, one-level, or subtree search, default is subtree.")]
-        [ValidateSet("Subtree",
-                     "OneLevel",
-                     "Base")]
+                   HelpMessage='scope of a search as either a base, one-level, or subtree search, default is subtree.')]
+        [ValidateSet('Subtree',
+                     'OneLevel',
+                     'Base')]
         [string]
-        $SearchScope = "Subtree",
+        $SearchScope = 'Subtree',
         
         [Parameter(Mandatory=$false,
-                   HelpMessage="Specifies the available options for examining security information of a directory object")]
-        [ValidateSet("None",
-                     "Dacl",
-                     "Group",
-                     "Owner",
-                     "Sacl")]
+                   HelpMessage='Specifies the available options for examining security information of a directory object')]
+        [ValidateSet('None',
+                     'Dacl',
+                     'Group',
+                     'Owner',
+                     'Sacl')]
         [string[]]
-        $SecurityMask = "None",
+        $SecurityMask = 'None',
         
         [Parameter(Mandatory=$false,
-                   HelpMessage="Whether the search should also return deleted objects that match the search filter.")]
+                   HelpMessage='Whether the search should also return deleted objects that match the search filter.')]
         [switch]
         $TombStone,
         
         [Parameter(Mandatory=$false,
-                   HelpMessage="Only those trusted for delegation.")]
+                   HelpMessage='Only those trusted for delegation.')]
         [switch]
         $TrustedForDelegation,
         
         [Parameter(Mandatory=$false,
-                   HelpMessage="Date to search for computers mofied on or after this date.")]
+                   HelpMessage='Date to search for computers mofied on or after this date.')]
         [datetime]
         $ModifiedAfter,
 
         [Parameter(Mandatory=$false,
-                   HelpMessage="Date to search for computers mofied on or before this date.")]
+                   HelpMessage='Date to search for computers mofied on or before this date.')]
         [datetime]
         $ModifiedBefore,
 
         [Parameter(Mandatory=$false,
-                   HelpMessage="Date to search for computers created on or after this date.")]
+                   HelpMessage='Date to search for computers created on or after this date.')]
         [datetime]
         $CreatedAfter,
 
         [Parameter(Mandatory=$false,
-                   HelpMessage="Date to search for computers created on or after this date.")]
+                   HelpMessage='Date to search for computers created on or after this date.')]
         [datetime]
         $CreatedBefore,
         
         [Parameter(Mandatory=$false,
-                   HelpMessage="Date to search for computers that logged on or after this date.")]
+                   HelpMessage='Date to search for computers that logged on or after this date.')]
         [datetime]
         $LogOnAfter,
 
         [Parameter(Mandatory=$false,
-            HelpMessage="Date to search for computers that logged on or after this date.")]
+            HelpMessage='Date to search for computers that logged on or after this date.')]
         [datetime]
         $LogOnBefore,
         
         [Parameter(Mandatory=$false,
-                   HelpMessage="Filter by the specified operating systems.")]
+                   HelpMessage='Filter by the specified operating systems.')]
         [SupportsWildcards()]
         [string[]]
         $OperatingSystem,
 
         [Parameter(Mandatory=$false,
-                   HelpMessage="Filter by the specified Service Principal Names.")]
+                   HelpMessage='Filter by the specified Service Principal Names.')]
         [SupportsWildcards()]
         [string[]]
         $SPN,
         
         [Parameter(Mandatory=$false,
-                   HelpMessage="Name of host to match search on.")]
+                   HelpMessage='Name of host to match search on.')]
         [ValidateNotNullOrEmpty()]
         [SupportsWildcards()]
         [string]
         $Name,
 
         [Parameter(Mandatory=$false,
-                   HelpMessage="List of only the properties to retrieve from AD.")]
+                   HelpMessage='List of only the properties to retrieve from AD.')]
         [string[]]
-        $Property
+        $Property = $()
         
         
     )
     
     begin {
         # Build filter
-        $CompFilter = "(objectCategory=Computer)"
+        $CompFilter = '(objectCategory=Computer)'
         $TempFilter = ''
         # Filter for modification time
         if ($ModifiedAfter -and $ModifiedBefore)
         {
-            $TempFilter = "$($TempFilter)(whenChanged>=$($ModifiedAfter.ToString("yyyyMMddhhmmss.sZ")))(whenChanged<=$($ModifiedBefore.ToString("yyyyMMddhhmmss.sZ")))"
+            $TempFilter = "$($TempFilter)(whenChanged>=$($ModifiedAfter.ToString('yyyyMMddhhmmss.sZ')))(whenChanged<=$($ModifiedBefore.ToString('yyyyMMddhhmmss.sZ')))"
         }
         elseif ($ModifiedAfter)
         {
-            $TempFilter = "$($TempFilter)(whenChanged>=$($ModifiedAfter.ToString("yyyyMMddhhmmss.sZ")))"
+            $TempFilter = "$($TempFilter)(whenChanged>=$($ModifiedAfter.ToString('yyyyMMddhhmmss.sZ')))"
         }
         elseif ($ModifiedBefore)
         {
-            $TempFilter = "$($TempFilter)(whenChanged<=$($ModifiedBefore.ToString("yyyyMMddhhmmss.sZ")))"
+            $TempFilter = "$($TempFilter)(whenChanged<=$($ModifiedBefore.ToString('yyyyMMddhhmmss.sZ')))"
         }
 
         # Fileter for creation time
         if ($CreatedAfter -and $CreatedBefore)
         {
-            $TempFilter = "$($TempFilter)(whenChanged>=$($CreatedAfter.ToString("yyyyMMddhhmmss.sZ")))(whenChanged<=$($CreatedBefore.ToString("yyyyMMddhhmmss.sZ")))"
+            $TempFilter = "$($TempFilter)(whenChanged>=$($CreatedAfter.ToString('yyyyMMddhhmmss.sZ')))(whenChanged<=$($CreatedBefore.ToString('yyyyMMddhhmmss.sZ')))"
         }
         elseif ($CreatedAfter)
         {
-            $TempFilter = "$($TempFilter)(whenChanged>=$($CreatedAfter.ToString("yyyyMMddhhmmss.sZ")))"
+            $TempFilter = "$($TempFilter)(whenChanged>=$($CreatedAfter.ToString('yyyyMMddhhmmss.sZ')))"
         }
         elseif ($CreatedBefore)
         {
-            $TempFilter = "$($TempFilter)(whenChanged<=$($CreatedBefore.ToString("yyyyMMddhhmmss.sZ")))"
+            $TempFilter = "$($TempFilter)(whenChanged<=$($CreatedBefore.ToString('yyyyMMddhhmmss.sZ')))"
         }
         
         # Fileter for loggon time
         if ($CreatedAfter -and $CreatedBefore)
         {
-            $TempFilter = "$($TempFilter)(lastlogon>=$($CreatedAfter.ToString("yyyyMMddhhmmss.sZ")))(lastlogon<=$($CreatedBefore.ToString("yyyyMMddhhmmss.sZ")))"
+            $TempFilter = "$($TempFilter)(lastlogon>=$($CreatedAfter.ToString('yyyyMMddhhmmss.sZ')))(lastlogon<=$($CreatedBefore.ToString('yyyyMMddhhmmss.sZ')))"
         }
         elseif ($CreatedAfter)
         {
-            $TempFilter = "$($TempFilter)(lastlogon>=$($CreatedAfter.ToString("yyyyMMddhhmmss.sZ")))"
+            $TempFilter = "$($TempFilter)(lastlogon>=$($CreatedAfter.ToString('yyyyMMddhhmmss.sZ')))"
         }
         elseif ($CreatedBefore)
         {
-            $TempFilter = "$($TempFilter)(lastlogon<=$($CreatedBefore.ToString("yyyyMMddhhmmss.sZ")))"
+            $TempFilter = "$($TempFilter)(lastlogon<=$($CreatedBefore.ToString('yyyyMMddhhmmss.sZ')))"
         }
 
         if ($Name)
@@ -192,6 +208,24 @@ function Get-DSComputer {
 
         $culture = Get-Culture
         
+        $StndProps = @(
+            
+        )
+
+        $EncryptionTypes = @{
+            1 = 'DES-CBC-CRC'
+            2 = 'DES-CBC-MD5'
+            4 = 'RC4-HMAC'
+            8 = 'AES128-CTS-HMAC-SHA1-96'
+            10 = 'AES256-CTS-HMAC-SHA1-96'}
+
+<#            $enctype = 28
+foreach ($enct in $EncryptionTypes.keys) {
+    if ($enct -band $enctype)
+    {
+        $EncryptionTypes[$enct]
+    }
+}#>
 
     }
     
@@ -219,10 +253,10 @@ function Get-DSComputer {
         $objSearcher.PageSize = $PageSize
         $objSearcher.SearchScope = $SearchScope
         $objSearcher.Tombstone = $TombStone
-        $objSearcher.SecurityMasks = [System.DirectoryServices.SecurityMasks]$SecurityMask
+        $objSearcher.SecurityMasks = [DirectoryServices.SecurityMasks]$SecurityMask
 
         # If properties specified add those to the searcher
-        if ($Property) {
+        if ($Property.count -ne 0 -or $Property -contains '*') {
             foreach ($prop in $Property) {
                 $objSearcher.PropertiesToLoad.Add($prop.ToLower()) | Out-Null
             }
@@ -236,7 +270,7 @@ function Get-DSComputer {
                 if ($prop -eq 'objectguid') {
                     $objProps['Guid'] = [guid]$_.properties."$($prop)"[0]
                 } elseif($prop -eq 'objectsid') {
-                    $objProps['Sid'] = "$(&{$sidobj = [byte[]]"$($_.Properties.objectsid)".split(" ");$sid = new-object System.Security.Principal.SecurityIdentifier $sidobj, 0; $sid.Value})"
+                    $objProps['Sid'] = "$(&{$sidobj = [byte[]]"$($_.Properties.objectsid)".split(' ');$sid = new-object System.Security.Principal.SecurityIdentifier $sidobj, 0; $sid.Value})"
                 } elseif($prop -eq 'lastlogontimestamp') {
                     $timeStamp = "$($_.Properties.lastlogontimestamp)"
                     $timeStampDate = [datetime]::FromFileTimeUtc($timeStamp)
@@ -247,7 +281,7 @@ function Get-DSComputer {
                     $secds.SetSecurityDescriptorBinaryForm($Desc)
                     $objProps['NTSecurityDescriptor'] = $secds
                 } elseif($prop -eq 'usercertificate') {
-                    $certs = foreach ($cert in $_.Properties.usercertificate) {[System.Security.Cryptography.X509Certificates.X509Certificate2]$cert}
+                    $certs = foreach ($cert in $_.Properties.usercertificate) {[Security.Cryptography.X509Certificates.X509Certificate2]$cert}
                     $objProps['UserCertificate'] = $certs
                 } elseif ($prop -eq 'accountexpires') {
                     Try
@@ -262,7 +296,6 @@ function Get-DSComputer {
                             $Date = [DateTime]$exval
                             $objProps['AccountExpires'] = $Date.AddYears(1600).ToLocalTime()
                         }
-                        $AcctExpires
                     }
                     catch
                     {

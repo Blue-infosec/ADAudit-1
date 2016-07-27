@@ -28,13 +28,13 @@ function Get-DSDirectorySearcher {
         $Credential = [Management.Automation.PSCredential]::Empty,
         
         [Parameter(Mandatory=$false,
-                   HelpMessage="Maximum number of Objects to pull from AD, limit is 1,000 .")]
+                   HelpMessage='Maximum number of Objects to pull from AD, limit is 1,000 .')]
         [int]
         $Limit = 1000,
         
         [Parameter(Mandatory=$false)]
         [string]
-        $searchRoot,
+        $SearchRoot,
         
         [Parameter(Mandatory=$false)]
         [string]
@@ -45,23 +45,25 @@ function Get-DSDirectorySearcher {
         $PageSize = 100,
         
         [Parameter(Mandatory=$false,
-        HelpMessage="Scope of a search as either a base, one-level, or subtree search, default is subtree.")]
-        [ValidateSet("Subtree",
-                     "OneLevel",
-                     "Base")]
-        [string]$SearchScope = "Subtree",
+        HelpMessage='Scope of a search as either a base, one-level, or subtree search, default is subtree.')]
+        [ValidateSet('Subtree',
+                     'OneLevel',
+                     'Base')]
+        [string]
+        $SearchScope = 'Subtree',
         
         [Parameter(Mandatory=$false,
-        HelpMessage="Specifies the available options for examining security information of a directory object")]
-        [ValidateSet("None",
-                     "Dacl",
-                     "Group",
-                     "Owner",
-                     "Sacl")]
-        [string[]]$SecurityMask = "None",
+        HelpMessage='Specifies the available options for examining security information of a directory object')]
+        [ValidateSet('None',
+                     'Dacl',
+                     'Group',
+                     'Owner',
+                     'Sacl')]
+        [string[]]
+        $SecurityMask = 'None',
         
         [Parameter(Mandatory=$false,
-        HelpMessage="Whether the search should also return deleted objects that match the search filter.")]
+        HelpMessage='Whether the search should also return deleted objects that match the search filter.')]
         [switch]
         $TombStone
     )
