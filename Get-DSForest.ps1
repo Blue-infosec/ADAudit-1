@@ -90,17 +90,18 @@ public static extern int NetGetJoinInformation(string server,out IntPtr domain,o
                     $Credential.UserName,
                     $Credential.GetNetworkCredential().Password
                 )
+
                 $typeName = 'DirectoryServices.ActiveDirectory.DirectoryContext'
                 $context = New-Object $typeName  $cArgs
                 $ForestObject = [DirectoryServices.ActiveDirectory.Forest]::GetForest($context)
                 
                 # Get sid for root domain.
-                if ($ForestObject -ne $null) {
-                    $RootDN = "DC=$(($ForestObject.Name).replace('.',',DC='))"
-                    $DEObj = Get-DSDirectoryEntry -DistinguishedName $RootDN -ComputerName $ComputerName -Credential $Credential
-                    $Sid = (New-Object -TypeName System.Security.Principal.SecurityIdentifier($DEObj.objectSid.value,0)).value
-                    Add-Member -InputObject $ForestObject -MemberType NoteProperty -Name 'Sid' -Value $Sid
-                }
+                
+                $RootDN = "DC=$(($ForestObject.Name).replace('.',',DC='))"
+                $DEObj = Get-DSDirectoryEntry -DistinguishedName $RootDN -ComputerName $ComputerName -Credential $Credential
+                $Sid = (New-Object -TypeName System.Security.Principal.SecurityIdentifier($DEObj.objectSid.value,0)).value
+                Add-Member -InputObject $ForestObject -MemberType NoteProperty -Name 'Sid' -Value $Sid
+                
             }
 
             'OtherForest' {
@@ -123,17 +124,15 @@ public static extern int NetGetJoinInformation(string server,out IntPtr domain,o
                 $context = New-Object $typeName  $cArgs
                 $ForestObject = [DirectoryServices.ActiveDirectory.Forest]::GetForest($context)
                 
-                # Get sid for root domain.
-                if ($ForestObject -ne $null) {
-                    $RootDN = "DC=$(($ForestObject.Name).replace('.',',DC='))"
-                    if ($Credential.UserName -ne $null){
-                        $DEObj = Get-DSDirectoryEntry -DistinguishedName $RootDN -Credential $Credential
-                    } else {
-                        $DEObj = Get-DSDirectoryEntry -DistinguishedName $RootDN
-                    }
-                    $Sid = (New-Object -TypeName System.Security.Principal.SecurityIdentifier($DEObj.objectSid.value,0)).value
-                    Add-Member -InputObject $ForestObject -MemberType NoteProperty -Name 'Sid' -Value $Sid
+                $RootDN = "DC=$(($ForestObject.Name).replace('.',',DC='))"
+                if ($Credential.UserName -ne $null){
+                    $DEObj = Get-DSDirectoryEntry -DistinguishedName $RootDN -Credential $Credential
+                } else {
+                    $DEObj = Get-DSDirectoryEntry -DistinguishedName $RootDN
                 }
+                $Sid = (New-Object -TypeName System.Security.Principal.SecurityIdentifier($DEObj.objectSid.value,0)).value
+                Add-Member -InputObject $ForestObject -MemberType NoteProperty -Name 'Sid' -Value $Sid
+                
             }
             Default {}
         }

@@ -46,7 +46,7 @@ function Get-DSDirectoryEntry {
         [string]
         $DistinguishedName,
 
-        # Path type (LDAP, Global Catalog, GUID or SID)
+        # Path type.
         [Parameter(Mandatory = $false,
             ValueFromPipelineByPropertyName = $true,
             ValueFromPipeline = $true)]
@@ -65,18 +65,19 @@ public static extern int NetGetJoinInformation(string server,out IntPtr domain,o
         $ptr = [IntPtr]::Zero
         $joinstatus = 0
         $type::NetGetJoinInformation($null, [ref] $ptr, [ref]$joinstatus) |Out-Null
-
+        
         # Manage id DN includes path type.
         if ($DistinguishedName.StartsWith('LDAP',$true,(Get-Culture)))
         {
             $PathType = 'LDAP'
-            $DistinguishedName = $DistinguishedName.Split('://')[1]
+            $DistinguishedName = $DistinguishedName.Split('://')[3]
+            
         }
 
         if ($DistinguishedName.StartsWith('GC',$true,(Get-Culture)))
         {
             $PathType = 'GC'
-            $DistinguishedName = $DistinguishedName.Split('://')[1]
+            $DistinguishedName = $DistinguishedName.Split('://')[3]
         }
     }
 

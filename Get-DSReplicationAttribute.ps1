@@ -40,6 +40,7 @@ function Get-DSReplicationAttribute {
             'Current' {$objSearcher = Get-DSDirectorySearcher -searchRoot $ObjectDN}
             Default {}
         }
+        $objSearcher.SearchRoot
         $objSearcher.Tombstone = $true
         $objSearcher.propertiestoload.add("*") | Out-Null
         $objSearcher.propertiestoload.add("msDS-ReplAttributeMetaData") | Out-Null
@@ -82,11 +83,12 @@ function Get-DSReplicationAttribute {
             $objProps['LocalChangeUsn']= $attrib.usnLocalChange
             $objProps['Object']= $ObjectDN
             $objProps['Server']= $ComputerName
-            New-Object -TypeName psobject -Property $objProps
+            #New-Object -TypeName psobject -Property $objProps
         }
 
         if ($IncludeMember) {
-            $xmlMember = "<root>" + $obj.properties."msds-replvaluemetadata" + "</root>"
+            Write-Verbose -Message 'Including Memeber information.'
+            $xmlMember = "<root>" + ($obj.properties."msds-replvaluemetadata") + "</root>"
             $xmlMember = [xml]$xmlMember
             foreach ($attrib in $xmlMember.root.DS_REPL_VALUE_META_DATA) {
                 $objProps = [ordered]@{}

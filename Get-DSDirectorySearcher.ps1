@@ -74,7 +74,7 @@ function Get-DSDirectorySearcher {
     process {
         switch ($PSCmdlet.ParameterSetName) {
             'Remote' { 
-                if ($searchRoot) {
+                if ($searchRoot.Length -gt 0) {
                     $domObj = Get-DSDirectoryEntry -ComputerName $ComputerName -DistinguishedName $searchRoot -Credential $Credential
 
                 } else {
@@ -83,10 +83,18 @@ function Get-DSDirectorySearcher {
                 
              }
             'Alternate' {
-                $domObj = Get-DSDirectoryEntry -Credential $Credential
+                if ($searchRoot.Length -gt 0) {
+                    $domObj = Get-DSDirectoryEntry -Credential $Credential -DistinguishedName $searchRoot
+                } else {
+                    $domObj = Get-DSDirectoryEntry -Credential $Credential
+                }
             }
             'Current' {
-                $domObj = Get-DSDirectoryEntry 
+                if ($searchRoot.Length -gt 0) {
+                    $domObj = Get-DSDirectoryEntry -DistinguishedName $searchRoot
+                } else {
+                    $domObj = Get-DSDirectoryEntry
+                }
             }
             Default {}
         }

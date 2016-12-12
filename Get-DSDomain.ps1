@@ -42,14 +42,15 @@ public static extern int NetGetJoinInformation(string server,out IntPtr domain,o
                 if ($joinstatus -eq 3){
                     $DomainObject = [System.DirectoryServices.ActiveDirectory.Domain]::GetCurrentDomain()
                     # Get sid for domain.
-                    if ($DomObj -ne $null) {
-                        $RootDN = "DC=$(($DomainObject.Name).replace('.',',DC='))"
-                        $DEObj = Get-DSDirectoryEntry -DistinguishedName $RootDN
-                        $Sid = (New-Object -TypeName System.Security.Principal.SecurityIdentifier($DEObj.objectSid.value,0)).value
-                        $guid = "$([guid]($DEObj.objectguid.Value))"
-                        Add-Member -InputObject $DomainObject -MemberType NoteProperty -Name 'Sid' -Value $Sid
-                        Add-Member -InputObject $DomainObject -MemberType NoteProperty -Name 'Guid' -Value $guid
-                    }
+                    
+                    $RootDN = "DC=$(($DomainObject.Name).replace('.',',DC='))"
+                    $DEObj = Get-DSDirectoryEntry -DistinguishedName $RootDN
+                    $Sid = (New-Object -TypeName System.Security.Principal.SecurityIdentifier($DEObj.objectSid.value,0)).value
+                    $guid = "$([guid]($DEObj.objectguid.Value))"
+                        
+                    Add-Member -InputObject $DomainObject -MemberType NoteProperty -Name 'Sid' -Value $Sid
+                    Add-Member -InputObject $DomainObject -MemberType NoteProperty -Name 'Guid' -Value $guid
+                    
                     
                 } else {
                     throw 'This computer is not joined to a domain so no domain could be retrieved.'
@@ -66,14 +67,14 @@ public static extern int NetGetJoinInformation(string server,out IntPtr domain,o
                 $typeName = 'DirectoryServices.ActiveDirectory.DirectoryContext'
                 $context = New-Object $typeName  $cArgs
                 $DomainObject = [DirectoryServices.ActiveDirectory.Domain]::GetDomain($context)
-                if ($DomainObject -ne $null) {
-                    $RootDN = "DC=$(($DomainObject.Name).replace('.',',DC='))"
-                    $DEObj = Get-DSDirectoryEntry -DistinguishedName $RootDN -ComputerName $ComputerName -Credential $Credential
-                    $Sid = (New-Object -TypeName System.Security.Principal.SecurityIdentifier($DEObj.objectSid.value,0)).value
-                    $guid = "$([guid]($DEObj.objectguid.Value))"
-                    Add-Member -InputObject $DomainObject -MemberType NoteProperty -Name 'Sid' -Value $Sid
-                    Add-Member -InputObject $DomainObject -MemberType NoteProperty -Name 'Guid' -Value $guid
-                }
+                
+                $RootDN = "DC=$(($DomainObject.Name).replace('.',',DC='))"
+                $DEObj = Get-DSDirectoryEntry -DistinguishedName $RootDN -ComputerName $ComputerName -Credential $Credential
+                $Sid = (New-Object -TypeName System.Security.Principal.SecurityIdentifier($DEObj.objectSid.value,0)).value
+                $guid = "$([guid]($DEObj.objectguid.Value))"
+
+                Add-Member -InputObject $DomainObject -MemberType NoteProperty -Name 'Sid' -Value $Sid
+                Add-Member -InputObject $DomainObject -MemberType NoteProperty -Name 'Guid' -Value $guid
             }
 
             'OtherDomain' {
@@ -95,18 +96,19 @@ public static extern int NetGetJoinInformation(string server,out IntPtr domain,o
                 $typeName = 'DirectoryServices.ActiveDirectory.DirectoryContext'
                 $context = New-Object $typeName  $cArgs
                 $DomainObject = [DirectoryServices.ActiveDirectory.Domain]::GetDomain($context)
-                if ($DomainObject -ne $null) {
-                    $RootDN = "DC=$(($DomainObject.Name).replace('.',',DC='))"
-                    if ($Credential.UserName -ne $null){
-                        $DEObj = Get-DSDirectoryEntry -DistinguishedName $RootDN -Credential $Credential
-                    } else {
-                        $DEObj = Get-DSDirectoryEntry -DistinguishedName $RootDN
-                    }
-                    $Sid = (New-Object -TypeName System.Security.Principal.SecurityIdentifier($DEObj.objectSid.value,0)).value
-                    $guid = "$([guid]($DEObj.objectguid.Value))"
-                    Add-Member -InputObject $DomainObject -MemberType NoteProperty -Name 'Sid' -Value $Sid
-                    Add-Member -InputObject $DomainObject -MemberType NoteProperty -Name 'Guid' -Value $guid
+                
+                $RootDN = "DC=$(($DomainObject.Name).replace('.',',DC='))"
+                if ($Credential.UserName -ne $null){
+                    $DEObj = Get-DSDirectoryEntry -DistinguishedName $RootDN -Credential $Credential
+                } else {
+                    $DEObj = Get-DSDirectoryEntry -DistinguishedName $RootDN
                 }
+                $Sid = (New-Object -TypeName System.Security.Principal.SecurityIdentifier($DEObj.objectSid.value,0)).value
+                $guid = "$([guid]($DEObj.objectguid.Value))"
+
+                Add-Member -InputObject $DomainObject -MemberType NoteProperty -Name 'Sid' -Value $Sid
+                Add-Member -InputObject $DomainObject -MemberType NoteProperty -Name 'Guid' -Value $guid
+                
             }
             Default {}
         }
