@@ -76,7 +76,7 @@ public static extern int NetGetJoinInformation(string server,out IntPtr domain,o
                         $RootDN = "DC=$(($ForestObject.Name).replace('.',',DC='))"
                         $DEObj = Get-DSDirectoryEntry -DistinguishedName $RootDN
                         $Sid = (New-Object -TypeName System.Security.Principal.SecurityIdentifier($DEObj.objectSid.value,0)).value
-                        Add-Member -InputObject $ForestObject -MemberType NoteProperty -Name 'Sid' -Value $Sid
+                         Add-Member -InputObject $ForestObject -MemberType NoteProperty -Name 'Sid' -Value $Sid
                     }
                 } else {
                     throw 'This computer is not joined to a domain so no forest could be retrieved.'

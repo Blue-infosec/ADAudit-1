@@ -197,11 +197,11 @@ function Get-DSUser {
             $TempFilter = "$($TempFilter)(whenChanged<=$($CreatedBefore.ToString('yyyyMMddhhmmss.sZ')))"}
         
         # Fileter for loggon time
-        if ($CreatedAfter -and $CreatedBefore) {
+        if ($LogOnAfter -and $LogOnBefore) {
             $TempFilter = "$($TempFilter)(lastlogon>=$($CreatedAfter.ToString('yyyyMMddhhmmss.sZ')))(lastlogon<=$($CreatedBefore.ToString('yyyyMMddhhmmss.sZ')))"}
-        elseif ($CreatedAfter) {
+        elseif ($LogOnAfter) {
             $TempFilter = "$($TempFilter)(lastlogon>=$($CreatedAfter.ToString('yyyyMMddhhmmss.sZ')))"}
-        elseif ($CreatedBefore) {
+        elseif ($LogOnBefore) {
             $TempFilter = "$($TempFilter)(lastlogon<=$($CreatedBefore.ToString('yyyyMMddhhmmss.sZ')))"}
 
         if ($Name) {
