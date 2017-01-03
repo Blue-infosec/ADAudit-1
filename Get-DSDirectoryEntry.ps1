@@ -37,7 +37,7 @@ function Get-DSDirectoryEntry {
                    Mandatory = $true)]
         [Management.Automation.PSCredential]
         [Management.Automation.CredentialAttribute()]
-        $Credential = [Management.Automation.PSCredential]::Empty,
+        $Credential,
         
         # Distinguished Name of AD object.
         [Parameter(Mandatory = $false,

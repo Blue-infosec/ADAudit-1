@@ -4,8 +4,8 @@
 .DESCRIPTION
     Get a diresctory searcher object fro a given domain.
 .EXAMPLE
-    C:\PS> <example usage>
-    Explanation of what the example does
+    C:\PS> $ADSearcher = Get-DSDirectorySearcher -Filter '(&(objectCategory=computer)(servicePrincipalName=MSSQLSvc*))'
+    Create a DirectorySearcher object with a filter for searching for all computers with a servicePrincipalName for Microsoft SQL Server.
 .OUTPUTS
     System.DirectoryServices.DirectorySearcher
 #>
@@ -25,7 +25,7 @@ function Get-DSDirectorySearcher {
                    Mandatory = $true)]
         [Management.Automation.PSCredential]
         [Management.Automation.CredentialAttribute()]
-        $Credential = [Management.Automation.PSCredential]::Empty,
+        $Credential,
         
         [Parameter(Mandatory=$false,
                    HelpMessage='Maximum number of Objects to pull from AD, limit is 1,000 .')]

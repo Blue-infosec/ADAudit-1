@@ -1,12 +1,14 @@
 <#
 .Synopsis
-   Short description
+   Get GPO objects.
 .DESCRIPTION
-   Long description
+   Get all GPO objects or those that match the specified properties.
 .EXAMPLE
-   Example of how to use this cmdlet
+   PS C:\> Get-DSGpo -ModifiedAfter (Get-Date).AddMonths(-1)
+   Find all GPO Objects mofied in the last 30 days. 
 .EXAMPLE
-   Another example of how to use this cmdlet
+   PS C:\> Get-DSGpo -ModifiedAfter (Get-Date).AddMonths(-1) -UserExtension "*35378EAC-683F-11D2-A89A-00C04FBBCFA2*"
+   Find GPOs with the specified User Extension GUID.
 #>
 function Get-DSGpo
 {
@@ -54,37 +56,112 @@ function Get-DSGpo
         
         
         [Parameter(Mandatory=$false,
-                   HelpMessage="Date to search for computers mofied on or after this date.")]
+                   HelpMessage="Date to search for GPO mofied on or after this date.")]
         [datetime]
         $ModifiedAfter,
 
         [Parameter(Mandatory=$false,
-                   HelpMessage="Date to search for computers mofied on or before this date.")]
+                   HelpMessage="Date to search for GPO mofied on or before this date.")]
         [datetime]
         $ModifiedBefore,
 
         [Parameter(Mandatory=$false,
-                   HelpMessage="Date to search for computers created on or after this date.")]
+                   HelpMessage="Date to search for GPO created on or after this date.")]
         [datetime]
         $CreatedAfter,
 
         [Parameter(Mandatory=$false,
-                   HelpMessage="Date to search for computers created on or after this date.")]
+                   HelpMessage="Date to search for GPO created on or after this date.")]
         [datetime]
         $CreatedBefore,
         
         
         [Parameter(Mandatory=$false,
-                   HelpMessage="Name of host to match search on.")]
+                   HelpMessage="Name of GPO to match search on.")]
         [ValidateNotNullOrEmpty()]
         [SupportsWildcards()]
         [string]
-        $Name
+        $Name,
+
+        [Parameter(Mandatory=$false,
+                   HelpMessage="Display name of the GPO to match search on.")]
+        [ValidateNotNullOrEmpty()]
+        [SupportsWildcards()]
+        [string]
+        $DisplayName,
+
+        # User extension GUIDs to filter on."
+        [Parameter(Mandatory=$false)]
+        [string[]]
+        $UserExtension,
+
+        # Machine extension GUIDs to filter on."
+        [Parameter(Mandatory=$false)]
+        [string[]]
+        $MachineExtension
     )
 
     Begin
     {
         $gpoFilter = '(objectClass=groupPolicyContainer)'
+        $TempFilter = ""
+
+        # Filter for modification time
+        if ($ModifiedAfter -and $ModifiedBefore)
+        {
+            $TempFilter = "$($TempFilter)(whenChanged>=$($ModifiedAfter.ToString('yyyyMMddhhmmss.sZ')))(whenChanged<=$($ModifiedBefore.ToString('yyyyMMddhhmmss.sZ')))"
+        }
+        elseif ($ModifiedAfter)
+        {
+            $TempFilter = "$($TempFilter)(whenChanged>=$($ModifiedAfter.ToString('yyyyMMddhhmmss.sZ')))"
+        }
+        elseif ($ModifiedBefore)
+        {
+            $TempFilter = "$($TempFilter)(whenChanged<=$($ModifiedBefore.ToString('yyyyMMddhhmmss.sZ')))"
+        }
+
+        # Fileter for creation time
+        if ($CreatedAfter -and $CreatedBefore)
+        {
+            $TempFilter = "$($TempFilter)(whencreated>=$($CreatedAfter.ToString('yyyyMMddhhmmss.sZ')))(whencreated<=$($CreatedBefore.ToString('yyyyMMddhhmmss.sZ')))"
+        }
+        elseif ($CreatedAfter)
+        {
+            $TempFilter = "$($TempFilter)(whencreated>=$($CreatedAfter.ToString('yyyyMMddhhmmss.sZ')))"
+        }
+        elseif ($CreatedBefore)
+        {
+            $TempFilter = "$($TempFilter)(whencreated<=$($CreatedBefore.ToString('yyyyMMddhhmmss.sZ')))"
+        }
+
+        if ($Name)
+        {
+            $TempFilter = "$($TempFilter)(name=$($Name))"
+        }
+
+        if ($DisplayName)
+        {
+            $TempFilter = "$($TempFilter)(displayname=$($DisplayName))"
+        }
+
+        # Filter on User Extension GUID.
+        if ($UserExtension) {
+            $initialFilter = ''
+            foreach ($uext in $UserExtension) {
+                $initialFilter += "(gpcuserextensionnames=*$($uext)*)"
+            }
+            $TempFilter += "(|$($initialFilter))"
+        }
+
+        # Filter on Machine Extension Filter.
+        if ($MachineExtension) {
+            $initialFilter = ''
+            foreach ($uext in $MachineExtension) {
+                $initialFilter += "(gpcmachineextensionnames=*$($uext)*)"
+            }
+            $TempFilter += "(|$($initialFilter))"
+        }
+
         $GpoGuidRef = @{
             '{b05566ac-fe9c-4368-be01-7a4cbb6cba11}' = 'WindowsFirewall'
             '{0ACDD40C-75AC-47ab-BAA0-BF6DE7E7FE63}' = 'Wireless Group Policy'
@@ -183,14 +260,16 @@ function Get-DSGpo
             '{53D6AB1B-2488-11D1-A28C-00C04FB94F17}' = 'EFS Policy'
             '{0F3F3735-573D-9804-99E4-AB2A69BA5FD4}' = 'Computer Policy Setting'
         }
+
+        $gpoFilter = "(&$($gpoFilter)$($TempFilter))"
     }
     Process
     {
-        write-verbose -message "Executing search with filter $CompFilter"
+        write-verbose -message "Executing search with filter $gpoFilter"
         switch ($PSCmdlet.ParameterSetName) {
             'Remote' { 
                 if ($searchRoot) {
-                    $objSearcher = Get-DSDirectorySearcher -ComputerName $ComputerName -DistinguishedName $searchRoot -Credential $Credential -Filter $gpoFilter
+                    $objSearcher = Get-DSDirectorySearcher -ComputerName $ComputerName -SearchRoot $searchRoot -Credential $Credential -Filter $gpoFilter
 
                 } else {
                     $objSearcher = Get-DSDirectorySearcher -ComputerName $ComputerName -Credential $Credential -Filter $gpoFilter
@@ -215,46 +294,6 @@ function Get-DSGpo
             {
                 if ($prop -eq 'objectguid') {
                     $objProps['Guid'] = [guid]$_.properties."$($prop)"[0]
-                } elseif ($prop -eq 'gpcmachineextensionnames') {
-                    $extensions = @()
-                    $extensionList = $_.properties."$($prop)"[0].split(']')
-                    if ($extensionList.count -gt 0) {
-                        foreach ($ext in $extensionList) {
-                            $extGroups = $ext.replace('[','').replace('}{','} {').split(' ')
-                            Write-Verbose -Message "count $($extGroups.count)"
-                            $extGroup = @{}
-                            if ($GpoGuidRef[$extGroups[0]]) {
-                                $extGroup.Add('CSE',$GpoGuidRef[$extGroups[0]])
-                            } elseif ($extGroups[0]) {
-                                $extGroup.Add('CSE',$extGroups[0])
-                            }
-                            $toolExtensions = @()
-                            for($i = 1;$i -le $extGroups.Count -1 ;$i++){
-                                if ($GpoGuidRef[$extGroups[$i]]){
-                                    $toolExtensions = $GpoGuidRef[$extGroups[$i]]
-                                } elseif ($extGroups[$i]) {
-                                    $toolExtensions = $extGroups[$i]
-                                }
-                            }
-                            $extGroup.Add('Settings', $toolExtensions)
-                            $extensions += $extGroup
-                        }
-                        
-                        $objProps['GPCMachineExtensions'] = $extensions
-                    }
-                } elseif ($prop -eq 'gpcuserextensionnames') {
-                    $extensions = @()
-                    $extensionList = $_.properties."$($prop)"[0].Replace('[','').replace(']','').replace('}{','} {').split(' ')
-                    if ($extensionList.count -gt 0) {
-                        foreach ($ext in $extensionList) {
-                            if ($GpoGuidRef[$ext]) {
-                                $extensions += $GpoGuidRef[$ext]
-                            } else {
-                                $extensions += $ext
-                            }
-                        }
-                        $objProps['GPCUserExtensions'] = $extensions
-                    }
                 } else {
                     $objProps[$prop] = $_.properties."$($prop)"[0]
                 }

@@ -9,6 +9,8 @@
 . $PSScriptRoot\Get-DSReplicationAttribute.ps1
 . $PSScriptRoot\Get-DSGroup.ps1
 . $PSScriptRoot\Get-DSGroupMember.ps1
+. $PSScriptRoot\Get-DSOU.ps1
+. $PSScriptRoot\Get-DSTrust.ps1
 # Private Functions
 
 <#

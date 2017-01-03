@@ -1,3 +1,18 @@
+<#
+.SYNOPSIS
+    Short description
+.DESCRIPTION
+    Long description
+.EXAMPLE
+    PS C:\> <example usage>
+    Explanation of what the example does
+.INPUTS
+    Inputs (if any)
+.OUTPUTS
+    Output (if any)
+.NOTES
+    General notes
+#>
 function Get-DSReplicationAttribute {
     [CmdletBinding(DefaultParameterSetName = 'Current')]
     param(
@@ -40,7 +55,6 @@ function Get-DSReplicationAttribute {
             'Current' {$objSearcher = Get-DSDirectorySearcher -searchRoot $ObjectDN}
             Default {}
         }
-        $objSearcher.SearchRoot
         $objSearcher.Tombstone = $true
         $objSearcher.propertiestoload.add("*") | Out-Null
         $objSearcher.propertiestoload.add("msDS-ReplAttributeMetaData") | Out-Null
@@ -83,7 +97,7 @@ function Get-DSReplicationAttribute {
             $objProps['LocalChangeUsn']= $attrib.usnLocalChange
             $objProps['Object']= $ObjectDN
             $objProps['Server']= $ComputerName
-            #New-Object -TypeName psobject -Property $objProps
+            New-Object -TypeName psobject -Property $objProps
         }
 
         if ($IncludeMember) {

@@ -130,11 +130,11 @@ function Get-DSGroup {
 
         # Fileter for creation time
         if ($CreatedAfter -and $CreatedBefore) {
-            $TempFilter = "$($TempFilter)(whenChanged>=$($CreatedAfter.ToString('yyyyMMddhhmmss.sZ')))(whenChanged<=$($CreatedBefore.ToString('yyyyMMddhhmmss.sZ')))"}
+            $TempFilter = "$($TempFilter)(whencreated>=$($CreatedAfter.ToString('yyyyMMddhhmmss.sZ')))(whencreated<=$($CreatedBefore.ToString('yyyyMMddhhmmss.sZ')))"}
         elseif ($CreatedAfter) {
-            $TempFilter = "$($TempFilter)(whenChanged>=$($CreatedAfter.ToString('yyyyMMddhhmmss.sZ')))"}
+            $TempFilter = "$($TempFilter)(whencreated>=$($CreatedAfter.ToString('yyyyMMddhhmmss.sZ')))"}
         elseif ($CreatedBefore) {
-            $TempFilter = "$($TempFilter)(whenChanged<=$($CreatedBefore.ToString('yyyyMMddhhmmss.sZ')))"}
+            $TempFilter = "$($TempFilter)(whencreated<=$($CreatedBefore.ToString('yyyyMMddhhmmss.sZ')))"}
 
         if ($Name) {
             $TempFilter = "$($TempFilter)(name=$($Name))"}
@@ -190,7 +190,7 @@ function Get-DSGroup {
         switch ($PSCmdlet.ParameterSetName) {
             'Remote' { 
                 if ($searchRoot) {
-                    $objSearcher = Get-DSDirectorySearcher -ComputerName $ComputerName -DistinguishedName $searchRoot -Credential $Credential -Filter $CompFilter
+                    $objSearcher = Get-DSDirectorySearcher -ComputerName $ComputerName -SearchRoot $searchRoot -Credential $Credential -Filter $CompFilter
 
                 } else {
                     $objSearcher = Get-DSDirectorySearcher -ComputerName $ComputerName -Credential $Credential -Filter $CompFilter

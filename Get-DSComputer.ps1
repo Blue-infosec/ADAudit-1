@@ -4,14 +4,14 @@
 .DESCRIPTION
      Get computer objects in a given directory service.
 .EXAMPLE
-    C:\PS> <example usage>
-    Explanation of what the example does
-.INPUTS
-    Inputs (if any)
-.OUTPUTS
-    Output (if any)
-.NOTES
-    General notes
+    C:\PS> Get-DSComputer -OperatingSystem "*windows 7*","*Windows 10*"
+    Find all computers in the current domain that are running Windows 7 or Windows 10.
+.EXAMPLE
+    C:\PS> Get-DSComputer -LogOnBefore (Get-Date).AddMonths(-3)
+    Find all computers that have not logged on to the domain in the last 3 months.
+.EXAMPLE
+    C:\PS> Get-DSComputer -SPN '*TERMSRV*'
+    Find all computers with a service Principal Name.for TERMSRV. This machine are offering the Remote Desktop service.
 #>
 function Get-DSComputer {
     [CmdletBinding(DefaultParameterSetName='Current')]
@@ -29,7 +29,7 @@ function Get-DSComputer {
                    Mandatory = $true)]
         [Management.Automation.PSCredential]
         [Management.Automation.CredentialAttribute()]
-        $Credential = [Management.Automation.PSCredential]::Empty,
+        $Credential,
         
         [Parameter(Mandatory=$false,
                 HelpMessage='Maximum number of Objects to pull from AD, limit is 1,000 .')]
@@ -150,29 +150,29 @@ function Get-DSComputer {
         # Fileter for creation time
         if ($CreatedAfter -and $CreatedBefore)
         {
-            $TempFilter = "$($TempFilter)(whenChanged>=$($CreatedAfter.ToString('yyyyMMddhhmmss.sZ')))(whenChanged<=$($CreatedBefore.ToString('yyyyMMddhhmmss.sZ')))"
+            $TempFilter = "$($TempFilter)(whencreated>=$($CreatedAfter.ToString('yyyyMMddhhmmss.sZ')))(whencreated<=$($CreatedBefore.ToString('yyyyMMddhhmmss.sZ')))"
         }
         elseif ($CreatedAfter)
         {
-            $TempFilter = "$($TempFilter)(whenChanged>=$($CreatedAfter.ToString('yyyyMMddhhmmss.sZ')))"
+            $TempFilter = "$($TempFilter)(whencreated>=$($CreatedAfter.ToString('yyyyMMddhhmmss.sZ')))"
         }
         elseif ($CreatedBefore)
         {
-            $TempFilter = "$($TempFilter)(whenChanged<=$($CreatedBefore.ToString('yyyyMMddhhmmss.sZ')))"
+            $TempFilter = "$($TempFilter)(whencreated<=$($CreatedBefore.ToString('yyyyMMddhhmmss.sZ')))"
         }
         
         # Fileter for loggon time
         if ($LogOnAfter -and $LogOnBefore)
         {
-            $TempFilter = "$($TempFilter)(lastlogon>=$($CreatedAfter.ToString('yyyyMMddhhmmss.sZ')))(lastlogon<=$($CreatedBefore.ToString('yyyyMMddhhmmss.sZ')))"
+            $TempFilter = "$($TempFilter)(lastlogon>=$($LogOnAfter.ToString('yyyyMMddhhmmss.sZ')))(lastlogon<=$($LogOnBefore.ToString('yyyyMMddhhmmss.sZ')))"
         }
         elseif ($LogOnAfter)
         {
-            $TempFilter = "$($TempFilter)(lastlogon>=$($CreatedAfter.ToString('yyyyMMddhhmmss.sZ')))"
+            $TempFilter = "$($TempFilter)(lastlogon>=$($LogOnAfter.ToString('yyyyMMddhhmmss.sZ')))"
         }
         elseif ($LogOnBefore)
         {
-            $TempFilter = "$($TempFilter)(lastlogon<=$($CreatedBefore.ToString('yyyyMMddhhmmss.sZ')))"
+            $TempFilter = "$($TempFilter)(lastlogon<=$($LogOnBefore.ToString('yyyyMMddhhmmss.sZ')))"
         }
 
         if ($Name)
@@ -234,7 +234,7 @@ foreach ($enct in $EncryptionTypes.keys) {
         switch ($PSCmdlet.ParameterSetName) {
             'Remote' { 
                 if ($searchRoot) {
-                    $objSearcher = Get-DSDirectorySearcher -ComputerName $ComputerName -DistinguishedName $searchRoot -Credential $Credential -Filter $CompFilter
+                    $objSearcher = Get-DSDirectorySearcher -ComputerName $ComputerName -SearchRoot $searchRoot -Credential $Credential -Filter $CompFilter
 
                 } else {
                     $objSearcher = Get-DSDirectorySearcher -ComputerName $ComputerName -Credential $Credential -Filter $CompFilter

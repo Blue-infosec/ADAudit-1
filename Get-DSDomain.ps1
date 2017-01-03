@@ -1,3 +1,17 @@
+<#
+.SYNOPSIS
+    Get information of a specified domain or the current domain.
+.DESCRIPTION
+    Get information of a specified domain or the current domain.
+.EXAMPLE
+    C:\PS> Get-DSDomain
+    Get information on the current domain the machine is a member of. 
+.OUTPUTS
+    System.DirectoryServices.ActiveDirectory.Domain
+.NOTES
+    This function is heavily dependent on DNS. The host running the function is highly
+    recomended to be using the same DNS server as the domain whe are querying.
+#>
 function Get-DSDomain {
     [CmdletBinding(DefaultParameterSetName = 'Current')]
     param(
@@ -19,6 +33,7 @@ function Get-DSDomain {
         # Domain name.
         [Parameter(ParameterSetName = 'OtherDomain',
                    Mandatory = $true)]
+        [Alias('Name')]
         [string]
         $DomainName
     )
@@ -37,9 +52,9 @@ public static extern int NetGetJoinInformation(string server,out IntPtr domain,o
                 $type = Add-Type -MemberDefinition $sig -Name Win32Utils -Namespace NetGetJoinInformation -PassThru
                 $ptr = [IntPtr]::Zero
                 $joinstatus = 0
-                $type::NetGetJoinInformation($null, [ref] $ptr, [ref]$joinstatus) |Out-Null
+                $type::NetGetJoinInformation($null, [ref] $ptr, [ref]$joinstatus) | Out-Null
 
-                if ($joinstatus -eq 3){
+                if ($joinstatus -eq 3) {
                     $DomainObject = [System.DirectoryServices.ActiveDirectory.Domain]::GetCurrentDomain()
                     # Get sid for domain.
                     
