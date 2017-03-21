@@ -134,49 +134,34 @@ function Get-DSComputer {
         $CompFilter = '(objectCategory=Computer)'
         $TempFilter = ''
         # Filter for modification time
-        if ($ModifiedAfter -and $ModifiedBefore)
-        {
+        if ($ModifiedAfter -and $ModifiedBefore) {
             $TempFilter = "$($TempFilter)(whenChanged>=$($ModifiedAfter.ToString('yyyyMMddhhmmss.sZ')))(whenChanged<=$($ModifiedBefore.ToString('yyyyMMddhhmmss.sZ')))"
-        }
-        elseif ($ModifiedAfter)
-        {
+        } elseif ($ModifiedAfter) {
             $TempFilter = "$($TempFilter)(whenChanged>=$($ModifiedAfter.ToString('yyyyMMddhhmmss.sZ')))"
-        }
-        elseif ($ModifiedBefore)
-        {
+        } elseif ($ModifiedBefore) {
             $TempFilter = "$($TempFilter)(whenChanged<=$($ModifiedBefore.ToString('yyyyMMddhhmmss.sZ')))"
         }
 
         # Fileter for creation time
-        if ($CreatedAfter -and $CreatedBefore)
-        {
+        if ($CreatedAfter -and $CreatedBefore) {
             $TempFilter = "$($TempFilter)(whencreated>=$($CreatedAfter.ToString('yyyyMMddhhmmss.sZ')))(whencreated<=$($CreatedBefore.ToString('yyyyMMddhhmmss.sZ')))"
-        }
-        elseif ($CreatedAfter)
-        {
+        } elseif ($CreatedAfter) {
             $TempFilter = "$($TempFilter)(whencreated>=$($CreatedAfter.ToString('yyyyMMddhhmmss.sZ')))"
-        }
-        elseif ($CreatedBefore)
-        {
+        } elseif ($CreatedBefore) {
             $TempFilter = "$($TempFilter)(whencreated<=$($CreatedBefore.ToString('yyyyMMddhhmmss.sZ')))"
         }
         
         # Fileter for loggon time
-        if ($LogOnAfter -and $LogOnBefore)
-        {
-            $TempFilter = "$($TempFilter)(lastlogon>=$($LogOnAfter.ToString('yyyyMMddhhmmss.sZ')))(lastlogon<=$($LogOnBefore.ToString('yyyyMMddhhmmss.sZ')))"
-        }
-        elseif ($LogOnAfter)
-        {
-            $TempFilter = "$($TempFilter)(lastlogon>=$($LogOnAfter.ToString('yyyyMMddhhmmss.sZ')))"
-        }
-        elseif ($LogOnBefore)
-        {
-            $TempFilter = "$($TempFilter)(lastlogon<=$($LogOnBefore.ToString('yyyyMMddhhmmss.sZ')))"
+         # Fileter for loggon time
+        if ($LogOnAfter -and $LogOnBefore) {
+            $TempFilter = "$($TempFilter)(lastlogon>=$($LogOnAfter.ToFileTimeUTC()))(lastlogon<=$($LogOnBefore.ToFileTimeUTC()))"
+        } elseif ($LogOnAfter) {
+            $TempFilter = "$($TempFilter)(lastlogon>=$($LogOnAfter.ToFileTimeUTC()))"
+        } elseif ($LogOnBefore) {
+            $TempFilter = "$($TempFilter)(lastlogon<=$($LogOnBefore.ToFileTimeUTC()))"
         }
 
-        if ($Name)
-        {
+        if ($Name) {
             $TempFilter = "$($TempFilter)(name=$($Name))"
         }
 
@@ -199,8 +184,7 @@ function Get-DSComputer {
         }
 
         # Filter for hosts trusted for delegation.
-        if ($TrustedForDelegation)
-        {
+        if ($TrustedForDelegation) {
             $TempFilter = "$($TempFilter)(userAccountControl:1.2.840.113556.1.4.803:=524288)"
         }
 
